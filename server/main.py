@@ -15,8 +15,8 @@ def retrieve_query(place = "", title = "", desease = "", year = 1, month = 1, da
 			"doença" : {"$regex" : "^" + desease},
 			"mod_data" : {"$gte" : datetime.datetime(year, month, day, hour)}})
 
-
-db_api = Flask(__name__)
+def insert_query(place , title, desease):
+	collection.insert({"local" : place, "titulo" : title, "doença" : desease, "mod_data" : datetime.datetime.now()})
 
 @db_api.route('/retrieve', methods = ['GET'])
 def retrieve():
@@ -29,6 +29,15 @@ def retrieve():
 	hour = request.args.get('hour', 0)
 	return ''.join([str(item) for item in retrieve_query(place, title, desease, year, month, day, hour)])
 
+@db_api.route('/insert', methods = ['GET'])
+def insert():
+	place = request.args.get('place', "")
+	title = request.args.get('title', "")
+	desease = request.args.get('desease', "")
+	if place == "" or title == "" or desease == "":
+		return "Fail"
+	insert_query(place, title, desease)
+	return "Success"
 
 if __name__ == "__main__":
 	port = int(os.environ.get('PORT', 5000))
