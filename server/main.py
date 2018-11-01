@@ -1,6 +1,8 @@
 import os
 import datetime
-from flask import Flask, request
+import json
+from bson.json_util import dumps
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 client = MongoClient('localhost', 27017)
@@ -27,8 +29,11 @@ def retrieve():
 	month = request.args.get('month', 1)
 	day = request.args.get('day', 1)
 	hour = request.args.get('hour', 0)
-	return ''.join([str(item) for item in retrieve_query(place, title, desease, year, month, day, hour)])
-
+	
+	query_str = retrieve_query(place, title, desease, year, month, day, hour);
+	query_str = dumps(query_str)
+	return jsonify(json.loads(query_str))
+ 
 @db_api.route('/insert', methods = ['GET'])
 def insert():
 	place = request.args.get('place', "")
