@@ -7,6 +7,8 @@ Python3
 
 Pymongo: pip install pymongo
 
+Flask: pip install flask
+
 Execute:
 mkdir sala_db
 
