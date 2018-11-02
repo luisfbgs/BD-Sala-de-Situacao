@@ -6,7 +6,7 @@ from bson.json_util import loads
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U']) 
 database = client.sala_db
 collection = database.news
 
