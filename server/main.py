@@ -47,7 +47,7 @@ def insert():
 	try:
 		json_content = loads(content)
 		check_input_json(json_content)
-	except e:
+	except:
 		return "Fail"
 	return str(insert_query(content))
 
