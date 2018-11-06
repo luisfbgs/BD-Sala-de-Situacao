@@ -24,7 +24,6 @@ def insert_query(json_content):
 def check_input_json(input_json):
 	keys = ['source', 'author', 'title', 'description', 'url', 'url_to_image', 'country', 'region', 'score', 'date', 'disease']
 	for k in keys:
-		print(k)
 		assert k in input_json
 
 @db_api.route('/retrieve', methods = ['GET'])
@@ -49,7 +48,7 @@ def insert():
 		check_input_json(json_content)
 	except:
 		return "Fail"
-	return str(insert_query(content))
+	return str(insert_query(json_content))
 
 if __name__ == "__main__":
 	port = int(os.environ.get('PORT', 5000))
