@@ -17,9 +17,15 @@ def retrieve_query(place = "", title = "", disease = "", year = 1, month = 1, da
 							"mod_date" : {"$gte" : datetime.datetime(year, month, day, hour)}})
 
 def insert_query(json_content):
-	new_id = collection.insert_one(loads(json_content)).inserted_id
+	new_id = collection.insert_one(json_content).inserted_id
 	collection.update_one({'_id' : new_id}, {'$set' : {'mod_date' : datetime.datetime.now()}})
 	return new_id
+
+def check_input_json(input_json):
+	keys = ['source', 'author', 'title', 'description', 'url', 'url_to_image', 'country', 'region', 'score', 'date', 'disease']
+	for k in keys:
+		assert k in input_json
+		assert type(input_json[k]) == type(str())
 
 @db_api.route('/retrieve', methods = ['GET'])
 def retrieve():
@@ -38,7 +44,10 @@ def retrieve():
 @db_api.route('/insert', methods = ['GET'])
 def insert():
 	content = request.args.get('json', "")
-	if content == "":
+	try:
+		json_content = loads(content)
+		check_input_json(json_content)
+	except e:
 		return "Fail"
 	return str(insert_query(content))
 
