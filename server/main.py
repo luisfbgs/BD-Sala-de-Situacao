@@ -25,7 +25,6 @@ def check_input_json(input_json):
 	keys = ['source', 'author', 'title', 'description', 'url', 'url_to_image', 'country', 'region', 'score', 'date', 'disease']
 	for k in keys:
 		assert k in input_json
-		assert type(input_json[k]) == type(str())
 
 @db_api.route('/retrieve', methods = ['GET'])
 def retrieve():
