@@ -12,8 +12,11 @@ collection = database.news
 
 db_api = Flask(__name__)
 
-def retrieve_query(place = "", title = "", disease = "", year = 1, month = 1, day = 1, hour = 0):
+def retrieve_query(country = "", region = "", title = "", disease = "", year = 1, month = 1, day = 1, hour = 0):
 	return collection.find({"title" : {"$regex" : "^" + title},
+							"country" : {"$regex" : "^" + country},
+							"region" : {"$regex" : "^" + region},
+							"disease" : {"$regex" : "^" + disease},
 							"mod_date" : {"$gte" : datetime.datetime(year, month, day, hour)}})
 
 def insert_query(json_content):
@@ -28,7 +31,8 @@ def check_input_json(input_json):
 
 @db_api.route('/retrieve', methods = ['GET'])
 def retrieve():
-	place = request.args.get('place', "")
+	country = request.args.get('country', "")
+	region = request.args.get('region', "")
 	title = request.args.get('title', "")
 	disease = request.args.get('disease', "")
 	year = int(request.args.get('year', 1))
@@ -36,7 +40,7 @@ def retrieve():
 	day = int(request.args.get('day', 1))
 	hour = int(request.args.get('hour', 0))
 	
-	query_str = retrieve_query(place, title, disease, year, month, day, hour);
+	query_str = retrieve_query(country, region, title, disease, year, month, day, hour);
 	query_str = dumps(query_str)
 	return jsonify(json.loads(query_str))
  
