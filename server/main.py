@@ -47,6 +47,9 @@ def retrieve():
 @db_api.route('/insert', methods = ['GET'])
 def insert():
 	content = request.args.get('json', "")
+	key = request.args.get('key', "")
+	if key != os.environ['INSERT_KEY']:
+		return "Fail"
 	try:
 		json_content = loads(content)
 		check_input_json(json_content)
