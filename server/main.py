@@ -78,9 +78,9 @@ def update():
     key = request.args.get('key', "")
     if key != os.environ['INSERT_KEY']:
         return "Fail: incorrect key"
-    return "Test"
     fields = ['source', 'author', 'title', 'description', 'url',
             'url_to_image', 'country', 'region', 'score', 'date', 'disease']
+    return "Test"
     if not (field in fields):
         return "Fail: the desired field cannot be updated"
     try:
