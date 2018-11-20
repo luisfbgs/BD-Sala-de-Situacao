@@ -84,9 +84,9 @@ def update():
         return "Fail: the desired field cannot be updated"
     try:
         qry = COLLECTION.find({'_id' : index})
-        return str(type(qry))
         if len(qry) == 0:
             return "Fail: desired id not found"
+        return "Test"
     except AssertionError as error:
         return "except " + str(error)
     return "Sucess"
