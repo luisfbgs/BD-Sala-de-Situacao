@@ -12,9 +12,10 @@ collection = database.news
 
 db_api = Flask(__name__)
 
-def retrieve_query(country = "", region = "", title = "", disease = "", year = 1, month = 1, day = 1, hour = 0):
+def retrieve_query(content = "", country = "", region = "", title = "", disease = "", year = 1, month = 1, day = 1, hour = 0):
 	return collection.find({"title" : {"$regex" : "^" + title},
 							"country" : {"$regex" : "^" + country},
+							"content" : {"$regex" : "^" + content},
 							"region" : {"$regex" : "^" + region},
 							"disease" : {"$regex" : "^" + disease},
 							"mod_date" : {"$gte" : datetime.datetime(year, month, day, hour)}})
@@ -34,13 +35,14 @@ def retrieve():
 	country = request.args.get('country', "")
 	region = request.args.get('region', "")
 	title = request.args.get('title', "")
+	content = request.args.get('content', "")
 	disease = request.args.get('disease', "")
 	year = int(request.args.get('year', 1))
 	month = int(request.args.get('month', 1))
 	day = int(request.args.get('day', 1))
 	hour = int(request.args.get('hour', 0))
 	
-	query_str = retrieve_query(country, region, title, disease, year, month, day, hour);
+	query_str = retrieve_query(content, country, region, title, disease, year, month, day, hour);
 	query_str = dumps(query_str)
 	return jsonify(json.loads(query_str))
  
