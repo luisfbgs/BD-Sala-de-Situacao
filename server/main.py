@@ -82,10 +82,12 @@ def update():
             'url_to_image', 'country', 'region', 'score', 'date', 'disease']
     if not (field in fields):
         return "Fail: the desired field cannot be updated"
-   
-    qry = COLLECTION.find({'_id' : index})
-    if len(qry) == 0:
-        return "Fail: desired id not found"
+    try:
+        qry = COLLECTION.find({'_id' : index})
+        if len(qry) == 0:
+            return "Fail: desired id not found"
+    except AssertionError as error:
+        return "except " + str(error)
     COLLECTION.update_one({'_id' : index}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
     return str(qry)
 
