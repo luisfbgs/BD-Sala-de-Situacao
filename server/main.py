@@ -83,13 +83,13 @@ def update():
     if not (field in fields):
         return "Fail: the desired field cannot be updated"
     try:
-        qry = COLLECTION.find({'_id' : index})
+        qry = COLLECTION.find({'_id' : ObjectId(index)})
         if len(str(qry)) == 0:
             return "Fail: desired id not found"
     except:
         return "Fail"
-    COLLECTION.update_one({'_id' : index}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
-    return str(qry)
+    COLLECTION.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
+    return jsonify(json.loads(qry))
 
 if __name__ == "__main__":
     PORT = int(os.environ.get('PORT', 5000))
