@@ -70,6 +70,21 @@ def insert():
         return "Fail: " + str(error)
     return str(insert_query(json_content))
 
+@DB_API.route('/update', methods=['GET'])
+def update():
+    index = request.args.get('index', "")
+    field = request.args.get('field', "")
+    key = request.args.get('key', "")
+    if key != os.environ['INSERT_KEY']:
+        return "Fail: incorrect key"
+    fields = ['source', 'author', 'title', 'description', 'url',
+            'url_to_image', 'country', 'region', 'score', 'date', 'disease']
+    if not (field in fields):
+        return "Fail: the desired field cannot be updated"
+   
+    qry = COLLECTION.find({'_id' : index})
+    return qry
+
 if __name__ == "__main__":
     PORT = int(os.environ.get('PORT', 5000))
     DB_API.run(host='0.0.0.0', port=PORT)
