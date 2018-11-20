@@ -89,10 +89,8 @@ def update():
             return "Fail: desired id not found"
     except:
         return "Fail"
-    try:
-        COLLECTION.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
-    except:
-        return "except"
+    COLLECTION.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
+    qry = COLLECTION.find({'_id' : ObjectId(index)})
     return jsonify(json.loads(dumps(qry)))
 
 if __name__ == "__main__":
