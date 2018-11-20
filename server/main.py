@@ -93,7 +93,7 @@ def update():
         COLLECTION.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
     except:
         return "except"
-    return jsonify(json.loads(qry))
+    return jsonify(json.loads(dumps(qry)))
 
 if __name__ == "__main__":
     PORT = int(os.environ.get('PORT', 5000))
