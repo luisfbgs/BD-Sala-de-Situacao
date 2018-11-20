@@ -66,8 +66,8 @@ def insert():
     try:
         json_content = loads(content)
         check_input_json(json_content)
-    except AssertionError as error:
-        return "Fail: " + str(error)
+    except:
+        return "Fail"
     return str(insert_query(json_content))
 
 @DB_API.route('/update', methods=['GET'])
@@ -86,10 +86,8 @@ def update():
         qry = COLLECTION.find({'_id' : index})
         if len(str(qry)) == 0:
             return "Fail: desired id not found"
-        return "Test"
-    except AssertionError as error:
-        return "except " + str(error)
-    return "Sucess"
+    except:
+        return "Fail"
     COLLECTION.update_one({'_id' : index}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
     return str(qry)
 
