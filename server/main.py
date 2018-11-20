@@ -88,6 +88,7 @@ def update():
             return "Fail: desired id not found"
     except AssertionError as error:
         return "except " + str(error)
+    return "Sucess"
     COLLECTION.update_one({'_id' : index}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
     return str(qry)
 
