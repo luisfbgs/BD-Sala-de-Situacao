@@ -74,6 +74,7 @@ def insert():
 def update():
     index = request.args.get('index', "")
     field = request.args.get('field', "")
+    content = request.args.get('content', "")
     key = request.args.get('key', "")
     if key != os.environ['INSERT_KEY']:
         return "Fail: incorrect key"
@@ -83,7 +84,10 @@ def update():
         return "Fail: the desired field cannot be updated"
    
     qry = COLLECTION.find({'_id' : index})
-    return qry
+    if len(qry) == 0:
+        return "Fail: desired id not found"
+    COLLECTION.update_one({'_id' : index}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
+    return str(qry)
 
 if __name__ == "__main__":
     PORT = int(os.environ.get('PORT', 5000))
