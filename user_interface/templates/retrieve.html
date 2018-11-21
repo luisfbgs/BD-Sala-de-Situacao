@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <title>BD de Noticias da Sala de Situacao</title>
+    </head>
+    <body>
+        <p>Recuperar noticias do Banco</p>
+        <p>Preencha os campos pelos quais deseja filtrar as noticias</p>
+        <p>Deixe em banco algum campo caso nao se importe com o valor do campo correspondente</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message[1] }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <form action="" method="post">
+            {{ form.csrf }}
+            <div class="input text">
+            {{ form.title.label }} {{ form.title }}
+            </div>
+            
+            <div class="input text">
+            {{ form.country.label }} {{ form.country }}
+            </div>
+           
+            <div class="input text">
+            {{ form.region.label }} {{ form.region }}
+            </div>
+           
+            <div class="input text">
+            {{ form.content.label }} {{ form.content }}
+            </div>
+           
+            <div class="input text">
+            {{ form.disease.label }} {{ form.disease }}
+            </div>
+
+            <div class="input submit">
+            <input type="submit" value="Submit" />
+            </div>
+        </form>
+    </body>
+</html>
