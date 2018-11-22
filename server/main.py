@@ -122,7 +122,7 @@ def search():
                            '&disease=' + disease)
 
             query_str = retrieve_query(content, (country, region), title, disease)
-            query_json = json.loads(query_str)
+            query_json = json.loads(dumps(query_str))
             csv = 'Autor,Título,Fonte,Url,Url da imagem,Conteúdo,Doença,País,Região\r\n'
             for item in query_json:
                 csv += "\"" + str(item['author']) + "\""
