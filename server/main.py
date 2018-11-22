@@ -107,11 +107,11 @@ def search():
     form = ReusableForm(request.form)
  
     if request.method == 'POST':
-        title = request.form['title'].replace(' ', '%20')
-        country = request.form['country'].replace(' ', '%20')
-        region = request.form['region'].replace(' ', '%20')
-        content = request.form['content'].replace(' ', '%20')
-        disease = request.form['disease'].replace(' ', '%20')
+        title = request.form['title']
+        country = request.form['country']
+        region = request.form['region']
+        content = request.form['content']
+        disease = request.form['disease']
  
         if form.validate():
             request_url = ('https://sala-de-situacao-bd.herokuapp.com/retrieve?' +
