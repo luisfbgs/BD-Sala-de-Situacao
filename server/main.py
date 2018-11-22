@@ -2,7 +2,6 @@ import os
 import datetime
 import json
 import tablib
-import urllib.request
 from bson.json_util import dumps
 from bson.json_util import loads
 from bson.objectid import ObjectId
