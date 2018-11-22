@@ -134,7 +134,6 @@ def search():
                 csv += ",\"" + str(item['disease']) + "\""
                 csv += ",\"" + str(item['country']) + "\""
                 csv += ",\"" + str(item['region']) + "\""
-                csv += ",\"" + str(item['region']) + "\""
                 csv += '\r\n'
             return Response(
                 csv,
