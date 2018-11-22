@@ -1,6 +1,8 @@
+import os
 import urllib.request
 import json
-from flask import Flask, render_template, flash, request, jsonify
+import tablib
+from flask import Flask, Response, render_template, flash, request, jsonify
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 
 # App config.
@@ -37,12 +39,31 @@ def hello():
                            '&disease=' + disease)
             api_data = urllib.request.urlopen(request_url)
             api_json = json.loads(api_data.read().decode('utf-8'))
-
-            return jsonify(api_json)
+            csv = 'Autor,Título,Fonte,Url,Url da imagem,Conteúdo,Doença,País,Região\r\n'
+            for item in api_json:
+                csv += "\"" + str(item['author']) + "\""
+                csv += ",\"" + str(item['title']) + "\""
+                csv += ",\"" + str(item['source']) + "\""
+                csv += ",\"" + str(item['url']) + "\""
+                csv += ",\"" + str(item['url_to_image']) + "\""
+                csv += ",\"" + str(item['content']) + "\""
+                csv += ",\"" + str(item['disease']) + "\""
+                csv += ",\"" + str(item['country']) + "\""
+                csv += ",\"" + str(item['region']) + "\""
+                csv += '\r\n'
+            # dataset = tablib.Dataset()
+            # dataset.csv = csv
+            return Response(
+                csv,
+                mimetype="text/csv",
+                headers={"Content-disposition":
+                         "attachment; filename=news.csv"})    
+            # return dataset.html
         else:
             flash('Alguma coisa deu errado.')
  
     return render_template('retrieve.html', form=form)
  
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

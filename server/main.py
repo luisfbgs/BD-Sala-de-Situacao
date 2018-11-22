@@ -7,18 +7,18 @@ from bson.objectid import ObjectId
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
-CLIENT = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
-DATABASE = CLIENT.sala_db
-COLLECTION = DATABASE.news
+client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
+database = client.sala_db
+collection = database.news
 
-DB_API = Flask(__name__)
+db_api = Flask(__name__)
 
 def retrieve_query(content="", local=("", ""), title="", disease="", date=(1, 1, 1, 0)):
     """Requests and returns the list of documents in the database
      with prefixs that match the arguments"""
     year, month, day, hour = date
     country, region = local
-    return COLLECTION.find({"title" : {"$regex" : "^" + title},
+    return collection.find({"title" : {"$regex" : "^" + title},
                             "country" : {"$regex" : "^" + country},
                             "content" : {"$regex" : "^" + content},
                             "region" : {"$regex" : "^" + region},
@@ -28,8 +28,8 @@ def retrieve_query(content="", local=("", ""), title="", disease="", date=(1, 1,
 def insert_query(json_content):
     """Inserts the json document in the database with a modification date attached.
     Returns the ID of the new document in the database"""
-    new_id = COLLECTION.insert_one(json_content).inserted_id
-    COLLECTION.update_one({'_id' : new_id}, {'$set' : {'mod_date' : datetime.datetime.now()}})
+    new_id = collection.insert_one(json_content).inserted_id
+    collection.update_one({'_id' : new_id}, {'$set' : {'mod_date' : datetime.datetime.now()}})
     return new_id
 
 def check_input_json(input_json):
@@ -39,7 +39,7 @@ def check_input_json(input_json):
     for k in keys:
         assert k in input_json
 
-@DB_API.route('/retrieve', methods=['GET'])
+@db_api.route('/retrieve', methods=['GET'])
 def retrieve():
     """Requests the desired documents from the database"""
     country = request.args.get('country', "")
@@ -56,7 +56,7 @@ def retrieve():
     query_str = dumps(query_str)
     return jsonify(json.loads(query_str))
 
-@DB_API.route('/insert', methods=['GET'])
+@db_api.route('/insert', methods=['GET'])
 def insert():
     """Inserts the desired document in the database.
     Returns the document ID if the insertion is successful or 'Fail' otherwise"""
@@ -71,7 +71,7 @@ def insert():
         return "Fail"
     return str(insert_query(json_content))
 
-@DB_API.route('/update', methods=['GET'])
+@db_api.route('/update', methods=['GET'])
 def update():
     index = request.args.get('index', "")
     field = request.args.get('field', "")
@@ -84,15 +84,15 @@ def update():
     if not (field in fields):
         return "Fail: the desired field cannot be updated"
     try:
-        qry = COLLECTION.find({'_id' : ObjectId(index)})
+        qry = collection.find({'_id' : ObjectId(index)})
         if len(str(qry)) == 0:
             return "Fail: desired id not found"
     except:
         return "Fail"
-    COLLECTION.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
-    qry = COLLECTION.find({'_id' : ObjectId(index)})
+    collection.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
+    qry = collection.find({'_id' : ObjectId(index)})
     return jsonify(json.loads(dumps(qry)))
 
 if __name__ == "__main__":
-    PORT = int(os.environ.get('PORT', 5000))
-    DB_API.run(host='0.0.0.0', port=PORT)
+    port = int(os.environ.get('PORT', 5000))
+    db_api.run(host='0.0.0.0', port=port)
