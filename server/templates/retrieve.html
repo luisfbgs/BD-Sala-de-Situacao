@@ -19,27 +19,14 @@
         {% endwith %}
         <form action="" method="post">
             {{ form.csrf }}
-            <div class="input text">
-            {{ form.title.label }} {{ form.title }}
-            </div>
-            
-            <div class="input text">
-            {{ form.country.label }} {{ form.country }}
-            </div>
-           
-            <div class="input text">
-            {{ form.region.label }} {{ form.region }}
-            </div>
-           
-            <div class="input text">
-            {{ form.content.label }} {{ form.content }}
-            </div>
-           
-            <div class="input text">
-            {{ form.disease.label }} {{ form.disease }}
-            </div>
-
-            <!-- <div class="input submit"> -->
+            <table>
+            <tr> <td> {{ form.title.label }} </td> <td> {{ form.title }} </td> </tr>
+            <tr> <td> {{ form.country.label }} </td> <td> {{ form.country }} </td> </tr>
+            <tr> <td> {{ form.region.label }} </td> <td> {{ form.region }} </td> </tr>
+            <tr> <td> {{ form.content.label }} </td> <td> {{ form.content }} </td> </tr>
+            <tr> <td> {{ form.disease.label }} </td> <td> {{ form.disease }} </td> </tr>
+            </table>
+            <!-- <div class="input submit">
             <!-- <input type="submit" value="Submit" /> -->
             <!-- </div> -->
             <button type="submit" onclick="news.csv"> Download </button>

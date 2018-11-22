@@ -145,6 +145,10 @@ def search():
  
     return render_template('retrieve.html', form=form)
 
+@db_api.route("/", methods=['GET', 'POST'])
+def home():
+    return render_template('home.html')
+
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     db_api.run(host='0.0.0.0', port=port)
