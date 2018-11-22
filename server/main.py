@@ -1,10 +1,13 @@
 import os
 import datetime
 import json
+import tablib
+import urllib.request
 from bson.json_util import dumps
 from bson.json_util import loads
 from bson.objectid import ObjectId
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, render_template, flash
+from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from pymongo import MongoClient
 
 client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
@@ -53,8 +56,8 @@ def retrieve():
     hour = int(request.args.get('hour', 0))
 
     query_str = retrieve_query(content, (country, region), title, disease, (year, month, day, hour))
-    query_str = dumps(query_str)
-    return jsonify(json.loads(query_str))
+    query_json = dumps(query_str)
+    return jsonify(json.loads(query_json))
 
 @db_api.route('/insert', methods=['GET'])
 def insert():
@@ -92,6 +95,57 @@ def update():
     collection.update_one({'_id' : ObjectId(index)}, {'$set' : {'mod_date' : datetime.datetime.now(), field : content}})
     qry = collection.find({'_id' : ObjectId(index)})
     return jsonify(json.loads(dumps(qry)))
+
+class ReusableForm(Form):
+    title   = TextField('Título:', default = "")
+    country = TextField('País:', default = "")
+    region  = TextField('Região:', default = "")
+    content = TextField('Conteúdo:', default = "")
+    disease = TextField('Doença:', default = "") 
+
+@db_api.route("/busca", methods=['GET', 'POST'])
+def search():
+    form = ReusableForm(request.form)
+ 
+    if request.method == 'POST':
+        title = request.form['title'].replace(' ', '%20')
+        country = request.form['country'].replace(' ', '%20')
+        region = request.form['region'].replace(' ', '%20')
+        content = request.form['content'].replace(' ', '%20')
+        disease = request.form['disease'].replace(' ', '%20')
+ 
+        if form.validate():
+            request_url = ('https://sala-de-situacao-bd.herokuapp.com/retrieve?' +
+                           'title=' + title +
+                           '&country=' + country +
+                           '&region=' + region +
+                           '&content=' + content +
+                           '&disease=' + disease)
+
+            query_str = retrieve_query(content, (country, region), title, disease)
+            query_json = dumps(query_str)
+            csv = 'Autor,Título,Fonte,Url,Url da imagem,Conteúdo,Doença,País,Região\r\n'
+            for item in query_json:
+                csv += "\"" + str(item['author']) + "\""
+                csv += ",\"" + str(item['title']) + "\""
+                csv += ",\"" + str(item['source']) + "\""
+                csv += ",\"" + str(item['url']) + "\""
+                csv += ",\"" + str(item['url_to_image']) + "\""
+                csv += ",\"" + str(item['content']) + "\""
+                csv += ",\"" + str(item['disease']) + "\""
+                csv += ",\"" + str(item['country']) + "\""
+                csv += ",\"" + str(item['region']) + "\""
+                csv += ",\"" + str(item['region']) + "\""
+                csv += '\r\n'
+            return Response(
+                csv,
+                mimetype="text/csv",
+                headers={"Content-disposition":
+                         "attachment; filename=news.csv"})    
+        else:
+            flash('Alguma coisa deu errado.')
+ 
+    return render_template('retrieve.html', form=form)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
