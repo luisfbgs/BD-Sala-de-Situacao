@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -
+
 import os
 import datetime
 import json
@@ -9,7 +12,7 @@ from flask import Flask, request, jsonify, Response, render_template, flash
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from pymongo import MongoClient
 
-client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
+client = MongoClient('localhost', 27017)
 database = client.sala_db
 collection = database.news
 
