@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>BD de Noticias da Sala de Situacao</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
         <p>Recuperar noticias do Banco</p>
@@ -26,7 +27,17 @@
             <tr> <td> {{ form.content.label }} </td> <td> {{ form.content }} </td> </tr>
             <tr> <td> {{ form.disease.label }} </td> <td> {{ form.disease }} </td> </tr>
             </table>
-            <button type="submit"> Download </button>
+            <p> {{ form.show_author }} {{ form.show_author.label }} </p>
+            <p> {{ form.show_title }} {{ form.show_title.label }} </p>
+            <p> {{ form.show_source }} {{ form.show_source.label }} </p>
+            <p> {{ form.show_url }} {{ form.show_url.label }} </p>
+            <p> {{ form.show_url_to_image }} {{ form.show_url_to_image.label }} </p>
+            <p> {{ form.show_content }} {{ form.show_content.label }} </p>
+            <p> {{ form.show_disease }} {{ form.show_disease.label }} </p>
+            <p> {{ form.show_country }} {{ form.show_country.label }} </p>
+            <p> {{ form.show_region }} {{ form.show_region.label }} </p>
+            <p> {{ form.show_published_at }} {{ form.show_published_at.label }} </p>
+            <p> {{ form.submit() }} </p>
         </form>
     </body>
 </html>

@@ -9,7 +9,7 @@ from bson.json_util import dumps
 from bson.json_util import loads
 from bson.objectid import ObjectId
 from flask import Flask, request, jsonify, Response, render_template, flash
-from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
+from wtforms import Form, TextField, TextAreaField, StringField, SubmitField, BooleanField, validators
 from pymongo import MongoClient
 
 client = MongoClient('localhost', 27017)
@@ -104,49 +104,89 @@ class ReusableForm(Form):
     region  = TextField('Região:', default = "")
     content = TextField('Conteúdo:', default = "")
     disease = TextField('Doença:', default = "") 
+    show_author       = BooleanField('Mostrar Autor', false_values=('false', ''))
+    show_title        = BooleanField('Mostrar Título', false_values=('false', ''))
+    show_source       = BooleanField('Mostrar Fonte', false_values=('false', ''))
+    show_url          = BooleanField('Mostrar Url', false_values=('false', ''))
+    show_url_to_image = BooleanField('Mostrar Url da imagem', false_values=('false', ''))
+    show_content      = BooleanField('Mostrar Conteúdo', false_values=('false', ''))
+    show_disease      = BooleanField('Mostrar Doença', false_values=('false', ''))
+    show_country      = BooleanField('Mostrar País', false_values=('false', ''))
+    show_region       = BooleanField('Mostrar Região', false_values=('false', ''))
+    show_published_at = BooleanField('Mostrar Data de Publicação', false_values=('false', ''))
+    submit = SubmitField('Download')
+
 
 @db_api.route("/busca", methods=['GET', 'POST'])
 def search():
     form = ReusableForm(request.form)
- 
     if request.method == 'POST':
+        print(request.form)
         title = request.form['title']
         country = request.form['country']
         region = request.form['region']
         content = request.form['content']
         disease = request.form['disease']
- 
-        if form.validate():
-            request_url = ('https://sala-de-situacao-bd.herokuapp.com/retrieve?' +
-                           'title=' + title +
-                           '&country=' + country +
-                           '&region=' + region +
-                           '&content=' + content +
-                           '&disease=' + disease)
 
-            query_str = retrieve_query(content, (country, region), title, disease)
-            query_json = json.loads(dumps(query_str))
-            csv = 'Id,Autor,Título,Fonte,Url,Url da imagem,Conteúdo,Doença,País,Região,Data de Publicação\r\n'
-            for item in query_json:
-                csv += "\"" + str(item['_id']['$oid']) + "\""
+        request_url = ('https://sala-de-situacao-bd.herokuapp.com/retrieve?' +
+                       'title=' + title +
+                       '&country=' + country +
+                       '&region=' + region +
+                       '&content=' + content +
+                       '&disease=' + disease)
+
+        query_str = retrieve_query(content, (country, region), title, disease)
+        query_json = json.loads(dumps(query_str))
+        csv = 'Id'
+        if 'show_author' in request.form:
+            csv += ',Autor'
+        if 'show_title' in request.form:
+            csv += ',Título'
+        if 'show_source' in request.form:
+            csv += ',Fonte'
+        if 'show_url' in request.form:
+            csv += ',Url'
+        if 'show_url_to_image' in request.form:
+            csv += ',Url da imagem'
+        if 'show_content' in request.form:
+            csv += ',Conteúdo'
+        if 'show_disease' in request.form:
+            csv += ',Doença'
+        if 'show_country' in request.form:
+            csv += ',País'
+        if 'show_region' in request.form:
+            csv += ',Região'
+        if 'show_published_at' in request.form:
+            csv += ',Data de Publicação'
+        csv += '\r\n'
+        for item in query_json:
+            csv += "\"" + str(item['_id']['$oid']) + "\""
+            if 'show_author' in request.form:
                 csv += ",\"" + str(item['author']) + "\""
+            if 'show_title' in request.form:
                 csv += ",\"" + str(item['title']) + "\""
+            if 'show_source' in request.form:
                 csv += ",\"" + str(item['source']) + "\""
+            if 'show_url' in request.form:
                 csv += ",\"" + str(item['url']) + "\""
+            if 'show_url_to_image' in request.form:
                 csv += ",\"" + str(item['url_to_image']) + "\""
+            if 'show_content' in request.form:
                 csv += ",\"" + str(item['content']) + "\""
+            if 'show_disease' in request.form:
                 csv += ",\"" + str(item['disease']) + "\""
+            if 'show_country' in request.form:
                 csv += ",\"" + str(item['country']) + "\""
+            if 'show_region' in request.form:
                 csv += ",\"" + str(item['region']) + "\""
+            if 'show_published_at' in request.form:
                 csv += ",\"" + str(item['published_at']) + "\""
-                csv += '\r\n'
-            return Response(
-                csv,
-                mimetype="text/csv",
-                headers={"Content-disposition":
-                         "attachment; filename=news.csv"})    
-        else:
-            flash('Alguma coisa deu errado.')
+            csv += '\r\n'
+        return Response(
+            csv,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     "attachment; filename=news.csv"})    
  
     return render_template('retrieve.html', form=form)
 
