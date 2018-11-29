@@ -11,6 +11,8 @@ from bson.objectid import ObjectId
 from flask import Flask, request, jsonify, Response, render_template, flash
 from wtforms import Form, TextField, TextAreaField, StringField, SubmitField, BooleanField, validators
 from pymongo import MongoClient
+from convert_country import name_country_sig, sig_country_name
+from convert_state import name_state_sig, sig_state_name
 
 client = MongoClient('localhost', 27017)
 database = client.sala_db
@@ -18,11 +20,27 @@ collection = database.news
 
 db_api = Flask(__name__)
 
+def correct_local(local):
+    country, region = local
+    if region in name_country_sig:
+        country = name_country_sig[region]
+    if region in sig_country_name:
+        country = region
+    elif country in name_country_sig:
+        country = name_country_sig[country]
+    if region in name_state_sig:
+        country = 'BR'
+        region = name_state_sig[region]
+    elif region in sig_state_name:
+        country = 'BR'
+    return (country, region)
+
+
 def retrieve_query(content="", local=("", ""), title="", disease="", date=(1, 1, 1, 0)):
     """Requests and returns the list of documents in the database
      with prefixs that match the arguments"""
     year, month, day, hour = date
-    country, region = local
+    country, region = correct_local(local)
     return collection.find({"title" : {"$regex" : "^" + title},
                             "country" : {"$regex" : "^" + country},
                             "content" : {"$regex" : "^" + content},
@@ -33,6 +51,7 @@ def retrieve_query(content="", local=("", ""), title="", disease="", date=(1, 1,
 def insert_query(json_content):
     """Inserts the json document in the database with a modification date attached.
     Returns the ID of the new document in the database"""
+    json_content['country'], json_content['region'] = correct_local((json_content['country'], json_content['region']))
     new_id = collection.insert_one(json_content).inserted_id
     collection.update_one({'_id' : new_id}, {'$set' : {'mod_date' : datetime.datetime.now()}})
     return new_id
@@ -99,11 +118,18 @@ def update():
     return jsonify(json.loads(dumps(qry)))
 
 class ReusableForm(Form):
+    author   = TextField('Autor:', default = "")
+    source   = TextField('Fonte:', default = "")
     title   = TextField('Título:', default = "")
+    description   = TextField('Descrição:', default = "")
+    url   = TextField('Url:', default = "")
+    url_to_image   = TextField('Url da imagem:', default = "")
     country = TextField('País:', default = "")
     region  = TextField('Região:', default = "")
+    score  = TextField('Pontuação:', default = "")
     content = TextField('Conteúdo:', default = "")
     disease = TextField('Doença:', default = "") 
+    date = TextField('Data de publicação:', default = "") 
     show_author       = BooleanField('Mostrar Autor', false_values=('false', ''))
     show_title        = BooleanField('Mostrar Título', false_values=('false', ''))
     show_source       = BooleanField('Mostrar Fonte', false_values=('false', ''))
@@ -115,25 +141,18 @@ class ReusableForm(Form):
     show_region       = BooleanField('Mostrar Região', false_values=('false', ''))
     show_published_at = BooleanField('Mostrar Data de Publicação', false_values=('false', ''))
     submit = SubmitField('Download')
+    submiti = SubmitField('Enviar')
 
 
 @db_api.route("/busca", methods=['GET', 'POST'])
 def search():
     form = ReusableForm(request.form)
     if request.method == 'POST':
-        print(request.form)
         title = request.form['title']
         country = request.form['country']
         region = request.form['region']
         content = request.form['content']
         disease = request.form['disease']
-
-        request_url = ('https://sala-de-situacao-bd.herokuapp.com/retrieve?' +
-                       'title=' + title +
-                       '&country=' + country +
-                       '&region=' + region +
-                       '&content=' + content +
-                       '&disease=' + disease)
 
         query_str = retrieve_query(content, (country, region), title, disease)
         query_json = json.loads(dumps(query_str))
@@ -189,6 +208,40 @@ def search():
                      "attachment; filename=news.csv"})    
  
     return render_template('retrieve.html', form=form)
+
+@db_api.route("/inserir", methods=['GET', 'POST'])
+def insert_page():
+    form = ReusableForm(request.form)
+    if request.method == 'POST':
+        author = request.form['author']
+        source = request.form['source']
+        title = request.form['title']
+        description = request.form['description']
+        url = request.form['url']
+        url_to_image = request.form['url_to_image']
+        country = request.form['country']
+        region = request.form['region']
+        score = request.form['score']
+        content = request.form['content']
+        disease = request.form['disease']
+        date = request.form['date']
+
+        insert_json = ("{\"source\": \"" + source + "\","
+                        + "\"author\": \"" + author + "\","
+                        + "\"title\": \"" + title + "\","
+                        + "\"description\": \"" + description + "\","
+                        + "\"url\": \"" + url + "\","
+                        + "\"url_to_image\": \"" + url_to_image + "\","
+                        + "\"country\": \"" + country + "\","
+                        + "\"region\": \"" + region + "\","
+                        + "\"score\": \"" + score + "\","
+                        + "\"published_at\": \"" + date + "\","
+                        + "\"content\": \"" + content + "\","
+                        + "\"disease\": \"" + disease + "\""
+                        + "}")
+        res = insert_query(loads(insert_json));
+ 
+    return render_template('insert.html', form=form)
 
 @db_api.route("/", methods=['GET', 'POST'])
 def home():
