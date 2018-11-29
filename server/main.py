@@ -97,10 +97,6 @@ def insert():
 
 @db_api.route('/update', methods=['GET'])
 def update():
-    qry = collection.find()
-    for item in qry:
-        country, region = correct_local((item['country'], item['region']))
-        collection.update_one({'_id' : item['_id']}, {'$set' : {'mod_date' : datetime.datetime.now(), 'country' : country, 'region': region}})
     index = request.args.get('index', "")
     field = request.args.get('field', "")
     content = request.args.get('content', "")
