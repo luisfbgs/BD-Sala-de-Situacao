@@ -14,7 +14,7 @@ from pymongo import MongoClient
 from convert_country import name_country_sig, sig_country_name
 from convert_state import name_state_sig, sig_state_name
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
 database = client.sala_db
 collection = database.news
 
@@ -97,6 +97,10 @@ def insert():
 
 @db_api.route('/update', methods=['GET'])
 def update():
+    qry = collection.find()
+    for item in qry:
+        country, region = correct_local((item['country'], item['region']))
+        collection.update_one({'_id' : item['_id']}, {'$set' : {'mod_date' : datetime.datetime.now(), 'country' : country, 'region': region}})
     index = request.args.get('index', "")
     field = request.args.get('field', "")
     content = request.args.get('content', "")
