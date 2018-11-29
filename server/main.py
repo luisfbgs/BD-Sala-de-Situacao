@@ -11,8 +11,8 @@ from bson.objectid import ObjectId
 from flask import Flask, request, jsonify, Response, render_template, flash
 from wtforms import Form, TextField, TextAreaField, StringField, SubmitField, BooleanField, validators
 from pymongo import MongoClient
-from convert_country import name_country_sig, sig_country_name
-from convert_state import name_state_sig, sig_state_name
+from server.convert_country import name_country_sig, sig_country_name
+from server.convert_state import name_state_sig, sig_state_name
 
 client = MongoClient('mongodb+srv://adm_sala_st:' + os.environ['DB_PASS'] + os.environ['CLUSTER_U'])
 database = client.sala_db
