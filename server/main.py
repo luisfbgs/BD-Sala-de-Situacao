@@ -19,6 +19,7 @@ database = client.sala_db
 collection = database.news
 
 db_api = Flask(__name__)
+db_api.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
 def correct_local(local):
     country, region = local
@@ -95,6 +96,21 @@ def insert():
         return "Fail"
     return str(insert_query(json_content))
 
+@db_api.route('/delete', methods=['GET'])
+def delete():
+    index = request.args.get('index', "")
+    key = request.args.get('key', "")
+    if key != os.environ['INSERT_KEY']:
+        return "Fail: incorrect key"
+    try:
+        qry = collection.find({'_id' : ObjectId(index)})
+        if len(str(qry)) == 0:
+            return "Fail: desired id not found"
+    except:
+        return "Fail"
+    collection.delete_one({'_id' : ObjectId(index)})
+    return "Success"
+
 @db_api.route('/update', methods=['GET'])
 def update():
     index = request.args.get('index', "")
@@ -130,6 +146,7 @@ class ReusableForm(Form):
     content = TextField('Conteúdo:', default = "")
     disease = TextField('Doença:', default = "") 
     date = TextField('Data de publicação:', default = "") 
+    password = TextField('Senha de insersão:', default = "") 
     show_author       = BooleanField('Mostrar Autor', false_values=('false', ''))
     show_title        = BooleanField('Mostrar Título', false_values=('false', ''))
     show_source       = BooleanField('Mostrar Fonte', false_values=('false', ''))
@@ -145,7 +162,7 @@ class ReusableForm(Form):
 
 
 @db_api.route("/busca", methods=['GET', 'POST'])
-def search():
+def search_page():
     form = ReusableForm(request.form)
     if request.method == 'POST':
         title = request.form['title']
@@ -225,21 +242,27 @@ def insert_page():
         content = request.form['content']
         disease = request.form['disease']
         date = request.form['date']
+        password = request.form['password']
 
-        insert_json = ("{\"source\": \"" + source + "\","
-                        + "\"author\": \"" + author + "\","
-                        + "\"title\": \"" + title + "\","
-                        + "\"description\": \"" + description + "\","
-                        + "\"url\": \"" + url + "\","
-                        + "\"url_to_image\": \"" + url_to_image + "\","
-                        + "\"country\": \"" + country + "\","
-                        + "\"region\": \"" + region + "\","
-                        + "\"score\": \"" + score + "\","
-                        + "\"published_at\": \"" + date + "\","
-                        + "\"content\": \"" + content + "\","
-                        + "\"disease\": \"" + disease + "\""
-                        + "}")
-        res = insert_query(loads(insert_json));
+        if password != os.environ['INSERT_KEY']:
+            flash("Senha incorreta")
+
+        else:
+            insert_json = ("{\"source\": \"" + source + "\","
+                            + "\"author\": \"" + author + "\","
+                            + "\"title\": \"" + title + "\","
+                            + "\"description\": \"" + description + "\","
+                            + "\"url\": \"" + url + "\","
+                            + "\"url_to_image\": \"" + url_to_image + "\","
+                            + "\"country\": \"" + country + "\","
+                            + "\"region\": \"" + region + "\","
+                            + "\"score\": \"" + score + "\","
+                            + "\"published_at\": \"" + date + "\","
+                            + "\"content\": \"" + content + "\","
+                            + "\"disease\": \"" + disease + "\""
+                            + "}")
+            res = insert_query(loads(insert_json))
+            flash(str(res))
  
     return render_template('insert.html', form=form)
 
