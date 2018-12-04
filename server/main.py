@@ -14,7 +14,7 @@ from pymongo import MongoClient
 from convert_country import name_country_sig, sig_country_name
 from convert_state import name_state_sig, sig_state_name
 
-client = MongoClient('localhost', 27017)
+client = MongoClient(os.environ['DB_PORT_27017_TCP_ADDR'], 27017)
 database = client.sala_db
 collection = database.news
 
